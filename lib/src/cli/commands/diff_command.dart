@@ -17,6 +17,8 @@ String _optionNameIgnorePrerelease = 'ignore-prerelease';
 String _optionNameNoMergeBaseClasses = 'no-merge-base-classes';
 String _optionNameNoAnalyzePlatformConstraints =
     'no-analyze-platform-constraints';
+String _optionNameIgnoreRequiredInterfaceHandling =
+    'ignore-required-interface-handling';
 String _optionNameCheckSdkVersion = 'check-sdk-version';
 String _optionNameDependencyCheckMode = 'dependency-check-mode';
 String _optionNameRemoveExample = 'remove-example';
@@ -95,6 +97,13 @@ You may want to do this if you want to make sure
       defaultsTo: true,
       negatable: true,
     );
+    argParser.addFlag(
+      _optionNameIgnoreRequiredInterfaceHandling,
+      help:
+          'Whether to ignore special (more strict) treatment of required interfaces',
+      defaultsTo: false,
+      negatable: true,
+    );
   }
 
   @override
@@ -115,6 +124,8 @@ You may want to do this if you want to make sure
         (element) =>
             element.name == argResults![_optionNameDependencyCheckMode]);
     final doRemoveExample = argResults![_optionNameRemoveExample] as bool;
+    final doIgnoreRequiredInterfaces =
+        argResults![_optionNameIgnoreRequiredInterfaceHandling] as bool;
 
     final preparedOldPackageRef = await prepare(
       oldPackageRef,
@@ -141,6 +152,11 @@ You may want to do this if you want to make sure
     await cleanUp(preparedOldPackageRef);
     await cleanUp(preparedNewPackageRef);
 
+    final adaptedOldPackageApi = _adaptApiModel(oldPackageApi,
+        doIgnoreRequiredInterfaces: doIgnoreRequiredInterfaces);
+    final adaptedNewPackageApi = _adaptApiModel(newPackageApi,
+        doIgnoreRequiredInterfaces: doIgnoreRequiredInterfaces);
+
     final differ = PackageApiDiffer(
       options: PackageApiDifferOptions(
         doCheckSdkVersion: doCheckSdkVersion,
@@ -148,7 +164,7 @@ You may want to do this if you want to make sure
       ),
     );
     final diffResult =
-        differ.diff(oldApi: oldPackageApi, newApi: newPackageApi);
+        differ.diff(oldApi: adaptedOldPackageApi, newApi: adaptedNewPackageApi);
 
     stdout.writeln();
 
@@ -177,14 +193,26 @@ You may want to do this if you want to make sure
     if (versionCheckMode != VersionCheckMode.none &&
         !_versionChangeMatchesChanges(
             diffResult: diffResult,
-            oldPackageApi: oldPackageApi,
-            newPackageApi: newPackageApi,
+            oldPackageApi: adaptedOldPackageApi,
+            newPackageApi: adaptedNewPackageApi,
             ignorePrerelease: ignorePrerelease,
             versionCheckMode: versionCheckMode)) {
       return -1;
     }
 
     return 0;
+  }
+
+  PackageApi _adaptApiModel(PackageApi input,
+      {required bool doIgnoreRequiredInterfaces}) {
+    return input.copyWith(
+      interfaceDeclarations: input.interfaceDeclarations.map((id) {
+        if (doIgnoreRequiredInterfaces) {
+          return id.copyWith(isRequired: false);
+        }
+        return id;
+      }).toList(),
+    );
   }
 
   String _getDeclarationNodeHeadline(Declaration declaration) {

@@ -68,38 +68,39 @@ Usage: dart-apitool extract [arguments]
 Creates a diff of 2 given packages.
 
 Usage: dart-apitool diff [arguments]
--h, --help                               Print this usage information.
-    --old (mandatory)                    Old package reference. Package reference can be one of:
-                                         - directory path pointing to a package on disk
-                                           (e.g. /path/to/package)
-                                         - any package from pub
-                                           (e.g. pub://package_name/version)
-    --new (mandatory)                    New package reference. Package reference can be one of:
-                                         - directory path pointing to a package on disk
-                                           (e.g. /path/to/package)
-                                         - any package from pub
-                                           (e.g. pub://package_name/version)
--p, --[no-]include-path-dependencies     Scans package for path dependencies and makes sure to copy all path dependencies for evaluation.
-                                         Warning: This option might cause copy to lift the copying scope outside the current working directory,
-                                         depending on paths defined by path dependencies.
-                                         Affects only local references.
-                                         (defaults to off)
-    --version-check-mode                 Defines the mode the versions of the packages shall be compared.
-                                         This affects the exit code of this program.
-                                         [none, fully (default), onlyBreakingChanges]
-    --[no-]check-sdk-version             Determines if the SDK version should be checked.
-                                         (defaults to on)
-    --[no-]ignore-prerelease             Determines if the pre-release aspect of the version
-                                         shall be ignored when checking versions.
-                                         This only makes sense in combination with --dependency-check-mode != none.
-                                         You may want to do this if you want to make sure
-                                         (in your CI) that the version - once ready - matches semver.
-    --no-merge-base-classes              Disables base class merging.
-    --no-analyze-platform-constraints    Disables analysis of platform constraints.
-    --dependency-check-mode              Defines the mode package dependency changes are handled.
-                                         [none, allowAdding, strict (default)]
-    --[no-]remove-example                Removes examples from the package to analyze.
-                                         (defaults to on)
+-h, --help                                       Print this usage information.
+    --old (mandatory)                            Old package reference. Package reference can be one of:
+                                                 - directory path pointing to a package on disk
+                                                   (e.g. /path/to/package)
+                                                 - any package from pub
+                                                   (e.g. pub://package_name/version)
+    --new (mandatory)                            New package reference. Package reference can be one of:
+                                                 - directory path pointing to a package on disk
+                                                   (e.g. /path/to/package)
+                                                 - any package from pub
+                                                   (e.g. pub://package_name/version)
+-p, --[no-]include-path-dependencies             Scans package for path dependencies and makes sure to copy all path dependencies for evaluation.
+                                                 Warning: This option might cause copy to lift the copying scope outside the current working directory,
+                                                 depending on paths defined by path dependencies.
+                                                 Affects only local references.
+                                                 (defaults to off)
+    --version-check-mode                         Defines the mode the versions of the packages shall be compared.
+                                                 This affects the exit code of this program.
+                                                 [none, fully (default), onlyBreakingChanges]
+    --[no-]check-sdk-version                     Determines if the SDK version should be checked.
+                                                 (defaults to on)
+    --[no-]ignore-prerelease                     Determines if the pre-release aspect of the version
+                                                 shall be ignored when checking versions.
+                                                 This only makes sense in combination with --dependency-check-mode != none.
+                                                 You may want to do this if you want to make sure
+                                                 (in your CI) that the version - once ready - matches semver.
+    --no-merge-base-classes                      Disables base class merging.
+    --no-analyze-platform-constraints            Disables analysis of platform constraints.
+    --dependency-check-mode                      Defines the mode package dependency changes are handled.
+                                                 [none, allowAdding, strict (default)]
+    --[no-]remove-example                        Removes examples from the package to analyze.
+                                                 (defaults to on)
+    --[no-]ignore-required-interface-handling    Whether to ignore special (more strict) treatment of required interfaces
 ```
 
 ## Integration

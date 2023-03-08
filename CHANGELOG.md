@@ -2,6 +2,7 @@
 
 ## Version 0.12.2
 - fall back to system Flutter executable if no matching Flutter executable can be found
+- new diff option: `--ignore-required-interface-handling` that can disable the strict handling of required interfaces
 
 ## Version 0.12.1
 - move package from devmil to bmw-tech 🚀
