@@ -491,7 +491,7 @@ class PackageApiDiffer {
             : ApiChangeType.addCompatibleMinor,
         isExperimental: isExperimental,
         changeDescription:
-            'Parameter "${addedParameter.name}" added${(isInterfaceRequired ?? false) ? ' (required)' : ''}',
+            'Parameter "${addedParameter.name}" added${(isInterfaceRequired ?? false) ? ' (required interface)' : ''}',
       ));
     }
 
