@@ -182,29 +182,6 @@ OBSOLETE: Has no effect anymore.
       await Directory(exampleDirPath).delete(recursive: true);
     }
 
-    // remove any dependency overrides and workspace resolutions from the pubspec.yaml
-    final pubspecFile = File(p.join(packagePath, 'pubspec.yaml'));
-    if (pubspecFile.existsSync()) {
-      try {
-        final pubSpec = PubSpec.load(directory: packagePath);
-        // removeAll of dependencyOverrides has an issue in the current version of pubspec_manager
-        // as it doesn't remove the section part of the dependency overrides and therefore are not removed
-        // in the saved version of the pubspec.yaml file
-        // workaround: remove all dependency overrides manually
-        for (final depOverride in pubSpec.dependencyOverrides.list) {
-          pubSpec.dependencyOverrides.remove(depOverride.name);
-        }
-        if (!pubSpec.document.findSectionForKey('resolution').missing) {
-          pubSpec.document.removeAll(
-              pubSpec.document.findSectionForKey('resolution').lines);
-        }
-        pubSpec.save();
-      } catch (e) {
-        await stdoutSession.writeln(
-            'Error removing dependency overrides from pubspec.yaml: $e');
-      }
-    }
-
     // Check if the package_config.json is already present from the preparation step
     final packageConfig = File(_getPackageConfigPathForPackage(
       packagePath,
@@ -212,6 +189,20 @@ OBSOLETE: Has no effect anymore.
       doCheckWorkspace: true,
     ));
     if (!packageConfig.existsSync()) {
+      await stdoutSession.writeln('Running pub get: preparation');
+      // adapt pubspec.yaml to ensure a smooth pub get run by removing problematic dependencies and configurations
+      final pubspecFile = File(p.join(packagePath, 'pubspec.yaml'));
+      if (pubspecFile.existsSync()) {
+        try {
+          await _adaptPubspecForPubGetInIsolation(
+            pubspecFile.path,
+            stdoutSession: stdoutSession,
+          );
+        } catch (e) {
+          await stdoutSession
+              .writeln('Error adapting pubspec.yaml for analysis: $e');
+        }
+      }
       await stdoutSession.writeln('Running pub get');
       await PubInteraction.runPubGet(
         packagePath,
@@ -303,6 +294,65 @@ OBSOLETE: Has no effect anymore.
       encoder.convert(targetPackageConfigContent),
       mode: FileMode.write,
     );
+  }
+
+  /// Adapts the pubspec.yaml file for pub get by removing problematic sections
+  /// that could prevent pub get from working in isolation from a monorepo context.
+  /// This includes:
+  /// - All dev dependencies (not needed for analysis)
+  /// - Dependency overrides (can break isolation)
+  /// - Workspace resolution configurations
+  Future<void> _adaptPubspecForPubGetInIsolation(
+    String pubspecPath, {
+    required StdoutSession stdoutSession,
+  }) async {
+    final packagePath = p.dirname(pubspecPath);
+    final pubSpec = PubSpec.load(directory: packagePath);
+
+    bool hasChanges = false;
+
+    // Remove all dev dependencies as they are not needed for analysis
+    // and can contain relative paths that break in isolation
+    if (pubSpec.devDependencies.list.isNotEmpty) {
+      await stdoutSession.writeln(
+          'Removing ${pubSpec.devDependencies.list.length} dev dependencies');
+      final devDepsToRemove =
+          pubSpec.devDependencies.list.map((dep) => dep.name).toList();
+      for (final devDepName in devDepsToRemove) {
+        pubSpec.devDependencies.remove(devDepName);
+      }
+      hasChanges = true;
+    }
+
+    // Remove all dependency overrides as they can break package isolation
+    if (pubSpec.dependencyOverrides.list.isNotEmpty) {
+      await stdoutSession.writeln(
+          'Removing ${pubSpec.dependencyOverrides.list.length} dependency overrides');
+      // removeAll of dependencyOverrides has an issue in the current version of pubspec_manager
+      // as it doesn't remove the section part of the dependency overrides and therefore are not removed
+      // in the saved version of the pubspec.yaml file
+      // workaround: remove all dependency overrides manually
+      final overridesToRemove =
+          pubSpec.dependencyOverrides.list.map((dep) => dep.name).toList();
+      for (final depOverride in overridesToRemove) {
+        pubSpec.dependencyOverrides.remove(depOverride);
+      }
+      hasChanges = true;
+    }
+
+    // Remove workspace resolution configurations
+    final resolutionSection = pubSpec.document.findSectionForKey('resolution');
+    if (!resolutionSection.missing) {
+      await stdoutSession
+          .writeln('Removing workspace resolution configuration');
+      pubSpec.document.removeAll(resolutionSection.lines);
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      pubSpec.save();
+      await stdoutSession.writeln('Pubspec.yaml adapted for analysis');
+    }
   }
 
   String _getPackageConfigPathForPackage(

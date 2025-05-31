@@ -20,7 +20,7 @@ void main() {
         ..addCommand(extractCommand);
     });
 
-    Future<Map<String, dynamic>> getExtractResultJson(
+    Future<Map<String, dynamic>> getExtractResultJsonFromPub(
         String packageName, String version) async {
       final tempDir = Directory.systemTemp.createTempSync();
       final jsonReportFile = File(p.join(tempDir.path, 'report.json'));
@@ -37,10 +37,35 @@ void main() {
       return result;
     }
 
+    Future<Map<String, dynamic>> getExtractResultJsonFromGit({
+      required String gitUrl,
+      required String gitRef,
+      String? gitRelativePath,
+    }) async {
+      final tempDir = Directory.systemTemp.createTempSync();
+      Process.runSync('git', ['clone', gitUrl, tempDir.path]);
+      Process.runSync('git', ['checkout', gitRef],
+          workingDirectory: tempDir.path);
+      final jsonReportFile = File(p.join(tempDir.path, 'report.json'));
+      final exitCode = await runner.run([
+        'extract',
+        '--input',
+        gitRelativePath != null
+            ? p.join(tempDir.path, gitRelativePath)
+            : tempDir.path,
+        '--output',
+        jsonReportFile.path,
+      ]);
+      expect(exitCode, 0);
+      final result = jsonDecode(await jsonReportFile.readAsString());
+      await tempDir.delete(recursive: true);
+      return result;
+    }
+
     test(
       'Analyzes sentry 5.1.0 correctly',
       () async {
-        final result = await getExtractResultJson('sentry', '5.1.0');
+        final result = await getExtractResultJsonFromPub('sentry', '5.1.0');
         final interfaceDeclarations =
             result['packageApi']['interfaceDeclarations'] as List;
         final sentryAssetBundleDeclaration =
@@ -56,7 +81,8 @@ void main() {
     test(
       'Analyzes cloud_firestore 4.3.1 correctly',
       () async {
-        final result = await getExtractResultJson('cloud_firestore', '4.3.1');
+        final result =
+            await getExtractResultJsonFromPub('cloud_firestore', '4.3.1');
         final interfaceDeclarations =
             result['packageApi']['interfaceDeclarations'] as List;
         final collectionReferenceDeclaration = interfaceDeclarations
@@ -72,7 +98,7 @@ void main() {
     test(
       'Analyzes device_info_plus_platform_interface 2.2.0 correctly',
       () async {
-        final result = await getExtractResultJson(
+        final result = await getExtractResultJsonFromPub(
             'device_info_plus_platform_interface', '2.2.0');
         final interfaceDeclarations =
             result['packageApi']['interfaceDeclarations'] as List;
@@ -90,7 +116,7 @@ void main() {
     test(
       'Analyzes http2 2.3.0 correctly',
       () async {
-        final result = await getExtractResultJson('http2', '2.3.0');
+        final result = await getExtractResultJsonFromPub('http2', '2.3.0');
         final interfaceDeclarations =
             result['packageApi']['interfaceDeclarations'] as List;
         final clientSettingsDeclaration = interfaceDeclarations
@@ -106,7 +132,8 @@ void main() {
     test(
       'Analyzes sqflite_common 2.3.0 correctly',
       () async {
-        final result = await getExtractResultJson('sqflite_common', '2.3.0');
+        final result =
+            await getExtractResultJsonFromPub('sqflite_common', '2.3.0');
         final interfaceDeclarations =
             result['packageApi']['interfaceDeclarations'] as List;
         final databaseFactoryDeclaration = interfaceDeclarations
