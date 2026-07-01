@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 1.0.0-dev
+- breaking: replace the internal analyzer-based API model extraction with the Dart `api_summary` package.
+- breaking: drop legacy `@sealed` metadata handling; Dart language `sealed` remains supported through `api_summary`.
+- breaking: stop encoding import prefixes into declaration names. Duplicate referenced declarations now keep their plain declaration names.
+- technical: bump minimum Dart SDK requirement to `>=3.12.0 <4.0.0` and remove the direct analyzer dependency.
+
 ## Version 0.23.2
 - `--set-exit-on-version-check-failure` to suppress exit code != 0 in case a mismatch is detected
 
