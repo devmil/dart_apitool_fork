@@ -137,8 +137,7 @@ Has no effect if --version-check-mode=none.
     final oldPackageRef = PackageRef(argResults![_optionNameOld]);
     final newPackageRef = PackageRef(argResults![_optionNameNew]);
     final outputFormatter = ReportFormat.values.firstWhere(
-      (element) => element.name == argResults![_optionReportFormat],
-    );
+        (element) => element.name == argResults![_optionReportFormat]);
     final outputFile = argResults![_optionReportPath];
 
     if (outputFormatter != ReportFormat.cli && outputFile == null) {
@@ -147,32 +146,34 @@ Has no effect if --version-check-mode=none.
 
     if (outputFormatter == ReportFormat.cli && outputFile != null) {
       stdout.writeln(
-        'WARNING: $_optionReportPath has no effect because $_optionReportFormat is set to cli',
-      );
+          'WARNING: $_optionReportPath has no effect because $_optionReportFormat is set to cli');
     }
 
     final versionCheckMode = VersionCheckMode.values.firstWhere(
-      (element) => element.name == argResults![_optionNameVersionCheckMode],
-    );
+        (element) => element.name == argResults![_optionNameVersionCheckMode]);
     final ignorePrerelease = argResults![_optionNameIgnorePrerelease] as bool;
     final doCheckSdkVersion = argResults![_optionNameCheckSdkVersion] as bool;
     final noAnalyzePlatformConstraints =
         argResults![_optionNameNoAnalyzePlatformConstraints] as bool;
-    if (argResults?.arguments.any(
-          (a) => a == '--$_optionNameDependencyCheckMode',
-        ) ??
+    if (argResults?.arguments
+            .any((a) => a == '--$_optionNameDependencyCheckMode') ??
         false) {
       stdout.writeln(
-        'You are using the option "$_optionNameDependencyCheckMode" that has no effect any more and will be removed in a future release (and will lead to an exception if specified)',
-      );
+          'You are using the option "$_optionNameDependencyCheckMode" that has no effect any more and will be removed in a future release (and will lead to an exception if specified)');
     }
     final doIgnoreRequiredness =
         argResults![_optionNameIgnoreRequiredness] as bool;
     final setExitOnVersionCheckFailure =
         argResults![_optionNameSetExitOnVersionCheckFailure] as bool;
 
-    final preparedOldPackageRef = await prepare(argResults!, oldPackageRef);
-    final preparedNewPackageRef = await prepare(argResults!, newPackageRef);
+    final preparedOldPackageRef = await prepare(
+      argResults!,
+      oldPackageRef,
+    );
+    final preparedNewPackageRef = await prepare(
+      argResults!,
+      newPackageRef,
+    );
 
     final oldPackageApi = await analyze(
       argResults!,
@@ -194,10 +195,8 @@ Has no effect if --version-check-mode=none.
         doIgnoreRequiredness: doIgnoreRequiredness,
       ),
     );
-    final diffResult = differ.diff(
-      oldApi: oldPackageApi,
-      newApi: newPackageApi,
-    );
+    final diffResult =
+        differ.diff(oldApi: oldPackageApi, newApi: newPackageApi);
 
     DiffReporter reporter = (() {
       switch (outputFormatter) {
@@ -205,16 +204,14 @@ Has no effect if --version-check-mode=none.
           return ConsoleDiffReporter();
         case ReportFormat.markdown:
           return MarkdownDiffReporter(
-            oldPackageRef: oldPackageRef,
-            newPackageRef: newPackageRef,
-            outputFile: File(outputFile),
-          );
+              oldPackageRef: oldPackageRef,
+              newPackageRef: newPackageRef,
+              outputFile: File(outputFile));
         case ReportFormat.json:
           return JsonDiffReporter(
-            oldPackageRef: oldPackageRef,
-            newPackageRef: newPackageRef,
-            outputFile: File(outputFile),
-          );
+              oldPackageRef: oldPackageRef,
+              newPackageRef: newPackageRef,
+              outputFile: File(outputFile));
       }
     })();
 
