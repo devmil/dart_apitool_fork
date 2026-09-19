@@ -16,8 +16,8 @@ class VersionCheckResult {
     required this.newVersion,
     Version? neededVersion,
     required this.explanation,
-  })  : success = true,
-        neededVersion = neededVersion ?? newVersion;
+  }) : success = true,
+       neededVersion = neededVersion ?? newVersion;
 
   VersionCheckResult.failure({
     required this.oldVersion,
@@ -109,7 +109,8 @@ abstract class VersionCheck {
             oldVersion: oldVersion,
             newVersion: newVersion,
             neededVersion: expectedMinVersion,
-            explanation: 'Got "$newVersion" expected a pre-release of at least '
+            explanation:
+                'Got "$newVersion" expected a pre-release of at least '
                 '"$expectedMinVersion" (breaking changes)',
           );
         }
@@ -117,7 +118,8 @@ abstract class VersionCheck {
           oldVersion: oldVersion,
           newVersion: newVersion,
           neededVersion: expectedMinVersion,
-          explanation: 'Got "$newVersion" which is a pre-release of at least '
+          explanation:
+              'Got "$newVersion" which is a pre-release of at least '
               '"$expectedMinVersion" (breaking changes)',
         );
       }
@@ -143,8 +145,9 @@ abstract class VersionCheck {
       );
     }
 
-    Version expectedMinVersion =
-        containsAnyChanges ? oldVersion.nextPatch : oldVersion;
+    Version expectedMinVersion = containsAnyChanges
+        ? oldVersion.nextPatch
+        : oldVersion;
     String versionExplanation = 'no changes';
     if (containsBreakingChanges) {
       expectedMinVersion = oldVersion.nextBreaking;

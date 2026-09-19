@@ -18,60 +18,49 @@ void main() {
         ..addCommand(diffCommand);
     });
 
-    test(
-      'diffing the same package works',
-      () async {
-        final packagePath = path.join(
-          'test',
-          'test_packages',
-          'path_references',
-          'cluster_a',
-          'package_a',
-        );
-        final exitCode = await runner.run([
-          'diff',
-          '--old',
-          packagePath,
-          '--new',
-          packagePath,
-        ]);
-        expect(exitCode, 0);
-      },
-      timeout: integrationTestTimeout,
-    );
-    test(
-      'diffing grpc 3.2.2 to 3.2.3',
-      () async {
-        final exitCode = await runner.run([
-          'diff',
-          '--old',
-          'pub://grpc/3.2.2',
-          '--new',
-          'pub://grpc/3.2.3',
-        ]);
-        expect(exitCode, 0);
-      },
-      timeout: integrationTestTimeout,
-    );
-    test(
-      'diffing cloud_firestore 4.3.1 to 4.3.2 works',
-      () async {
-        // just some random package for testing the diff command for pub refs
-        final diffCommand = DiffCommand();
-        final runner =
-            CommandRunner<int>('dart_apitool_tests', 'Test for dart_apitool')
-              ..addCommand(diffCommand);
-        final exitCode = await runner.run([
-          'diff',
-          '--old',
-          'pub://cloud_firestore/4.3.1',
-          '--new',
-          'pub://cloud_firestore/4.3.2',
-        ]);
-        expect(exitCode, 0);
-      },
-      timeout: integrationTestTimeout,
-    );
+    test('diffing the same package works', () async {
+      final packagePath = path.join(
+        'test',
+        'test_packages',
+        'path_references',
+        'cluster_a',
+        'package_a',
+      );
+      final exitCode = await runner.run([
+        'diff',
+        '--old',
+        packagePath,
+        '--new',
+        packagePath,
+      ]);
+      expect(exitCode, 0);
+    }, timeout: integrationTestTimeout);
+    test('diffing grpc 3.2.2 to 3.2.3', () async {
+      final exitCode = await runner.run([
+        'diff',
+        '--old',
+        'pub://grpc/3.2.2',
+        '--new',
+        'pub://grpc/3.2.3',
+      ]);
+      expect(exitCode, 0);
+    }, timeout: integrationTestTimeout);
+    test('diffing cloud_firestore 4.3.1 to 4.3.2 works', () async {
+      // just some random package for testing the diff command for pub refs
+      final diffCommand = DiffCommand();
+      final runner = CommandRunner<int>(
+        'dart_apitool_tests',
+        'Test for dart_apitool',
+      )..addCommand(diffCommand);
+      final exitCode = await runner.run([
+        'diff',
+        '--old',
+        'pub://cloud_firestore/4.3.1',
+        '--new',
+        'pub://cloud_firestore/4.3.2',
+      ]);
+      expect(exitCode, 0);
+    }, timeout: integrationTestTimeout);
 
     test(
       'diffing cloud_firestore 4.3.1 to 4.3.2 and producing a markdown report works',
@@ -80,9 +69,10 @@ void main() {
         final reportFilePath = path.join(tempDir.path, 'markdown_report.md');
         // just some random package for testing the diff command for pub refs
         final diffCommand = DiffCommand();
-        final runner =
-            CommandRunner<int>('dart_apitool_tests', 'Test for dart_apitool')
-              ..addCommand(diffCommand);
+        final runner = CommandRunner<int>(
+          'dart_apitool_tests',
+          'Test for dart_apitool',
+        )..addCommand(diffCommand);
         final exitCode = await runner.run([
           'diff',
           '--old',
@@ -92,7 +82,7 @@ void main() {
           '--report-format',
           'markdown',
           '--report-file-path',
-          reportFilePath
+          reportFilePath,
         ]);
         expect(exitCode, 0);
         expect(File(reportFilePath).existsSync(), isTrue);
@@ -114,9 +104,10 @@ void main() {
         final reportFilePath = path.join(tempDir.path, 'json_report.json');
         // just some random package for testing the diff command for pub refs
         final diffCommand = DiffCommand();
-        final runner =
-            CommandRunner<int>('dart_apitool_tests', 'Test for dart_apitool')
-              ..addCommand(diffCommand);
+        final runner = CommandRunner<int>(
+          'dart_apitool_tests',
+          'Test for dart_apitool',
+        )..addCommand(diffCommand);
         final exitCode = await runner.run([
           'diff',
           '--old',
@@ -126,7 +117,7 @@ void main() {
           '--report-format',
           'json',
           '--report-file-path',
-          reportFilePath
+          reportFilePath,
         ]);
         expect(exitCode, 0);
         expect(File(reportFilePath).existsSync(), isTrue);
@@ -144,34 +135,32 @@ void main() {
       timeout: integrationTestTimeout,
     );
 
-    test(
-      'diffing cloud_firestore 4.3.1 to latest works',
-      () async {
-        // just some random package for testing the diff command for pub refs without version
-        final diffCommand = DiffCommand();
-        final runner =
-            CommandRunner<int>('dart_apitool_tests', 'Test for dart_apitool')
-              ..addCommand(diffCommand);
-        final exitCode = await runner.run([
-          'diff',
-          '--old',
-          'pub://cloud_firestore/4.3.1',
-          '--new',
-          'pub://cloud_firestore',
-        ]);
-        expect(exitCode, 0);
-      },
-      timeout: integrationTestTimeout,
-    );
+    test('diffing cloud_firestore 4.3.1 to latest works', () async {
+      // just some random package for testing the diff command for pub refs without version
+      final diffCommand = DiffCommand();
+      final runner = CommandRunner<int>(
+        'dart_apitool_tests',
+        'Test for dart_apitool',
+      )..addCommand(diffCommand);
+      final exitCode = await runner.run([
+        'diff',
+        '--old',
+        'pub://cloud_firestore/4.3.1',
+        '--new',
+        'pub://cloud_firestore',
+      ]);
+      expect(exitCode, 0);
+    }, timeout: integrationTestTimeout);
 
     test(
       'diffing protobuf a9822d881d27a27b454621bc698997fce5abf370 to 4916e6f7d34443869c27d997749d4362870fd7ce works',
       () async {
         // just some random package that we know the git refs of
         final diffCommand = DiffCommand();
-        final runner =
-            CommandRunner<int>('dart_apitool_tests', 'Test for dart_apitool')
-              ..addCommand(diffCommand);
+        final runner = CommandRunner<int>(
+          'dart_apitool_tests',
+          'Test for dart_apitool',
+        )..addCommand(diffCommand);
         final exitCode = await runner.run([
           'diff',
           '--old',
