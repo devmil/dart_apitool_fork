@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.0.0-dev
+## Version 0.24.0-dev
 - breaking: replace the internal analyzer-based API model extraction with the Dart `api_summary` package.
 - breaking: drop legacy `@sealed` metadata handling; Dart language `sealed` remains supported through `api_summary`.
 - breaking: stop encoding import prefixes into declaration names. Duplicate referenced declarations now keep their plain declaration names.
