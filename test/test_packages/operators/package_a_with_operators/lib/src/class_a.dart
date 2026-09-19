@@ -4,20 +4,14 @@ class ClassA {
   ClassA({required int value = 0}) : _value = value;
 
   operator +(ClassA other) {
-    return ClassA(
-      value: _value + other._value,
-    );
+    return ClassA(value: _value + other._value);
   }
 
   operator -(ClassA other) {
-    return ClassA(
-      value: _value - other._value,
-    );
+    return ClassA(value: _value - other._value);
   }
 
   operator -() {
-    return ClassA(
-      value: -_value,
-    );
+    return ClassA(value: -_value);
   }
 }
