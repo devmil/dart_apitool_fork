@@ -1,5 +1,19 @@
 part of '../api_summary_package_api_adapter.dart';
 
+extension on api_summary.ApiDeclaration {
+  bool get isExperimental =>
+      _hasMetaContract(api_summary.MetaContract.experimental);
+
+  bool get isVisibleForTesting =>
+      _hasMetaContract(api_summary.MetaContract.visibleForTesting);
+
+  bool _hasMetaContract(api_summary.MetaContract contract) {
+    return facets.whereType<api_summary.MetaContractFacet>().any(
+      (facet) => facet.contracts.contains(contract),
+    );
+  }
+}
+
 final class _AdaptedApiSummary {
   final List<InterfaceDeclaration> interfaceDeclarations;
   final List<ExecutableDeclaration> executableDeclarations;

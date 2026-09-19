@@ -4,6 +4,9 @@
 - breaking: replace the internal analyzer-based API model extraction with the Dart `api_summary` package.
 - breaking: drop legacy `@sealed` metadata handling; Dart language `sealed` remains supported through `api_summary`.
 - breaking: stop encoding import prefixes into declaration names. Duplicate referenced declarations now keep their plain declaration names.
+- fix: support Dart 3.13 primary constructors and shorthand factory constructors.
+- fix: require the breaking-change version bump when the new version is a pre-release.
+- fix: discard stale pub-cache build state before analyzing copied packages.
 - technical: bump minimum Dart SDK requirement to `>=3.12.0 <4.0.0` and remove the direct analyzer dependency.
 
 ## Version 0.23.2

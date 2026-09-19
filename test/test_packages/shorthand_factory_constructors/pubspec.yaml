@@ -1,0 +1,6 @@
+name: shorthand_factory_constructors
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0

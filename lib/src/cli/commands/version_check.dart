@@ -40,20 +40,24 @@ abstract class VersionCheck {
     stdout.writeln('Checking Package version');
     if (oldPackageApi.packageVersion == null) {
       throw PackageApiDiffError(
-          message: 'Old package doesn\'t contain a version]');
+        message: 'Old package doesn\'t contain a version]',
+      );
     }
     if (newPackageApi.packageVersion == null) {
       throw PackageApiDiffError(
-          message: 'New package doesn\'t contain a version]');
+        message: 'New package doesn\'t contain a version]',
+      );
     }
     final oldVersion = Version.parse(oldPackageApi.packageVersion!);
     final newVersion = Version.parse(newPackageApi.packageVersion!);
 
     bool containsAnyChanges = diffResult.hasChanges;
-    bool containsBreakingChanges =
-        diffResult.apiChanges.any((change) => change.isBreaking);
-    bool onlyPatchChanges =
-        diffResult.apiChanges.any((change) => !change.type.requiresMinorBump);
+    bool containsBreakingChanges = diffResult.apiChanges.any(
+      (change) => change.isBreaking,
+    );
+    bool onlyPatchChanges = diffResult.apiChanges.any(
+      (change) => !change.type.requiresMinorBump,
+    );
 
     if (versionCheckMode == VersionCheckMode.none) {
       return VersionCheckResult.success(
@@ -94,9 +98,32 @@ abstract class VersionCheck {
     }
 
     if (newVersion.isPreRelease) {
-      // pre-release. We don't look at differentiation between breaking and non-breaking changes
       final prefix =
           'We got a pre release. We only check if there are any changes.';
+      if (containsBreakingChanges) {
+        final expectedMinVersion = oldVersion.nextBreaking;
+        final newVersionWithoutPreRelease = Version.parse(newVersion.toString())
+          ..preRelease.clear();
+        if (newVersionWithoutPreRelease < expectedMinVersion) {
+          return VersionCheckResult.failure(
+            oldVersion: oldVersion,
+            newVersion: newVersion,
+            neededVersion: expectedMinVersion,
+            explanation: 'Got "$newVersion" expected a pre-release of at least '
+                '"$expectedMinVersion" (breaking changes)',
+          );
+        }
+        return VersionCheckResult.success(
+          oldVersion: oldVersion,
+          newVersion: newVersion,
+          neededVersion: expectedMinVersion,
+          explanation: 'Got "$newVersion" which is a pre-release of at least '
+              '"$expectedMinVersion" (breaking changes)',
+        );
+      }
+
+      // For non-breaking pre-releases, only require a newer version when the
+      // API changed.
       if (containsAnyChanges && oldVersion >= newVersion) {
         return VersionCheckResult.failure(
           oldVersion: oldVersion,
@@ -110,9 +137,10 @@ abstract class VersionCheck {
           ? 'which is > "$oldVersion" (pre-release but changes)'
           : 'and no changes';
       return VersionCheckResult.success(
-          oldVersion: oldVersion,
-          newVersion: newVersion,
-          explanation: '$prefix Got "$newVersion" $explanation');
+        oldVersion: oldVersion,
+        newVersion: newVersion,
+        explanation: '$prefix Got "$newVersion" $explanation',
+      );
     }
 
     Version expectedMinVersion =
